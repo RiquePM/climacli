@@ -36,7 +36,7 @@ def format_data(json_resp):
 
     return current_weather_data, forecast_data
 
-def render_current_weather(city, json_resp):
+def render_current_weather(json_resp):
     console = Console()
     current_weather_data = format_data(json_resp)[0]
     current_weather_table = Table(
@@ -50,7 +50,7 @@ def render_current_weather(city, json_resp):
     current_weather_table.add_row(*current_weather_data.values())
     return console.print(current_weather_table)
 
-def render_forecast(city,json_resp):
+def render_forecast(json_resp):
     console = Console()
     current_weather, forecast_data = format_data(json_resp)
     forecast_table = Table(
@@ -78,9 +78,9 @@ def main(city, display_forecast):
     URL2 = f'https://api.hgbrasil.com/weather?fields={FIELDS}&key={TOKEN1}'
 
     json_resp = request_data(URL2)
-    render_current_weather(city, json_resp)
+    render_current_weather(json_resp)
     if display_forecast:
-        render_forecast(city, json_resp)
+        render_forecast(json_resp)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
