@@ -58,15 +58,14 @@ def render_forecast(json_resp):
     return console.print(forecast_table)
 
 def main(city, display_forecast):
-    TOKEN1 = 'f901feb2'
-    TOKEN2 = '43cdce36'
+    TOKEN = 'user token here'
     CITY = f'{city}'
     FIELDS = '''only_results,temp,date,description,city,humidity,forecast,date,
             weekday,max,min,description'''
     URL1 = f'''https://api.hgbrasil.com/weather?fields={FIELDS}
-               &key={TOKEN1}&city_name={CITY}
+               &key={TOKEN}&city_name={CITY}
             '''
-    URL2 = f'https://api.hgbrasil.com/weather?fields={FIELDS}&key={TOKEN1}'
+    URL2 = f'https://api.hgbrasil.com/weather?fields={FIELDS}&key={TOKEN}'
 
     json_resp = request_data(URL2)
     render_current_weather(json_resp)
