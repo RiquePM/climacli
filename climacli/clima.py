@@ -4,15 +4,6 @@ from rich.table import Table
 import argparse
 
 
-#TOKEN1 = 'f901feb2'
-#TOKEN2 = '43cdce36'
-#CITY = 'SaoPaulo,SP'
-#FIELDS = '''only_results,temp,date,description,city,humidity,forecast,date,
-            #weekday,max,min,description,condition'''
-#URL1 = f'https://api.hgbrasil.com/weather?fields={FIELDS}&key={TOKEN1}&city_name={CITY}'
-#URL2 = f'https://api.hgbrasil.com/weather?fields={FIELDS}&key={TOKEN1}'
-
-
 def request_data(URL):
     r = requests.get(URL)
     return r.json()
