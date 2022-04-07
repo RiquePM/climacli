@@ -40,26 +40,26 @@ def render_current_weather(city, json_resp):
     console = Console()
     current_weather_data = format_data(json_resp)[0]
     current_weather_table = Table(
-    "Temperature",
-    "Date",
-    "Description",
-    "City",
-    "Humidity",
-    title=f'Current weather in {city}',
+        "Temperature",
+        "Date",
+        "Description",
+        "City",
+        "Humidity",
+    title=f'Current weather in {current_weather_data["city"]}',
     )
     current_weather_table.add_row(*current_weather_data.values())
     return console.print(current_weather_table)
 
 def render_forecast(city,json_resp):
     console = Console()
-    forecast_data = format_data(json_resp)[1]
+    current_weather, forecast_data = format_data(json_resp)
     forecast_table = Table(
         "Date",
         "Weekday",
         "Max",
         "Min",
         "Description",
-        title=f'{city} 10 day weather forecast',
+        title=f'{current_weather["city"]} 10 day weather forecast',
         )
     for val in forecast_data['forecast']:
         forecast_table.add_row(*val.values())
