@@ -4,75 +4,94 @@ from rich.table import Table
 import argparse
 
 
-def request_data(URL):
-    r = requests.get(URL)
-    return r.json()
+class RequestManager:
+    def __init__(self, city):
+        """In the future these constants are going to be imported
+           from another python module in order to reduce code verbosity 
+        """
+        self.TOKEN = "User token here"
+        self.city = city
+        self.FIELDS = '''only_results,temp,date,description,city,humidity,
+                         forecast,date,weekday,max,min,description
+                      '''
 
-def format_data(json_resp):
-    current_weather_data = json_resp.copy()
-    current_weather_data.pop('forecast')
-    for k,v in current_weather_data.items():
-        if type(v) == int:
-            current_weather_data[k] = str(v)
-        else:
-            continue
+        self.BASE_URL = ''.join(f'''https://api.hgbrasil.com/weather?
+                                    fields={self.FIELDS}
+                                    &key={self.TOKEN}
+                                 '''.split())
 
-    forecast_data = {'forecast': json_resp['forecast']}
-    for val in forecast_data['forecast']:
-        for k, v in val.items():
+        self.CITY_URL = ''.join(f'''https://api.hgbrasil.com/weather?
+                                    fields={self.FIELDS}
+                                    &key={self.TOKEN}
+                                    &city_name={self.city}
+                                 '''.split())
+        self.json_resp = None
+        self.current_weather_data = None
+        self.forecast_data = None
+
+    def request_data(self):
+        """To do: put the function inside a try-except block"""
+        r = requests.get(self.CITY_URL)
+        self.json_resp = r.json()
+        return self.json_resp
+
+    def format_data(self):
+        """To do: """
+        self.current_weather_data = self.json_resp.copy()
+        self.current_weather_data.pop('forecast')
+        for k,v in self.current_weather_data.items():
             if type(v) == int:
-                val[k] = str(v)
-        else:
-            continue
+                self.current_weather_data[k] = str(v)
+            else:
+                continue
 
-    return current_weather_data, forecast_data
+        self.forecast_data = {'forecast': self.json_resp['forecast']}
+        for val in self.forecast_data['forecast']:
+            for k, v in val.items():
+                if type(v) == int:
+                    val[k] = str(v)
+            else:
+                continue
 
-def render_current_weather(json_resp):
-    console = Console()
-    current_weather_data = format_data(json_resp)[0]
-    current_weather_table = Table(
-        "Temperature",
-        "Date",
-        "Description",
-        "City",
-        "Humidity",
-    title=f'Current weather in {current_weather_data["city"]}',
-    )
-    current_weather_table.add_row(*current_weather_data.values())
-    return console.print(current_weather_table)
+        return self.current_weather_data, self.forecast_data
 
-def render_forecast(json_resp):
-    console = Console()
-    current_weather, forecast_data = format_data(json_resp)
-    forecast_table = Table(
-        "Date",
-        "Weekday",
-        "Max",
-        "Min",
-        "Description",
-        title=f'{current_weather["city"]} 10 day weather forecast',
+class RenderWeather:
+    def __init__(self, current_weather_data, forecast_data):
+        self.current_weather_data = current_weather_data
+        self.forecast_data = forecast_data
+        self.console = Console()
+
+    def render_current_weather(self):
+        #current_weather_data = format_data(json_resp)[0]
+        current_weather_table = Table(
+            "Temperature",
+            "Date",
+            "Description",
+            "City",
+            "Humidity",
+        title=f'Current weather in {self.current_weather_data["city"]}',
         )
-    for val in forecast_data['forecast']:
-        forecast_table.add_row(*val.values())
-    
-    return console.print(forecast_table)
+        current_weather_table.add_row(*self.current_weather_data.values())
+        return self.console.print(current_weather_table)
 
-def main(city, display_forecast):
-    TOKEN = 'user token here'
-    CITY = f'{city}'
-    FIELDS = '''only_results,temp,date,description,city,humidity,forecast,date,
-            weekday,max,min,description'''
-    URL1 = f'''https://api.hgbrasil.com/weather?fields={FIELDS}
-               &key={TOKEN}&city_name={CITY}
-            '''
-    URL2 = f'https://api.hgbrasil.com/weather?fields={FIELDS}&key={TOKEN}'
+    def render_forecast(self):
+        #current_weather, forecast_data = format_data(json_resp)
+        forecast_table = Table(
+            "Date",
+            "Weekday",
+            "Max",
+            "Min",
+            "Description",
+            title=f'''{self.current_weather_data["city"]} 
+                      10 day weather forecast
+                   ''',
+            )
+        for val in self.forecast_data['forecast']:
+            forecast_table.add_row(*val.values())
 
-    json_resp = request_data(URL2)
-    render_current_weather(json_resp)
-    if display_forecast:
-        render_forecast(json_resp)
+        return self.console.print(forecast_table)
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='''
                                                   Displays the current weather
                                                   and the next 10 day 
@@ -80,8 +99,23 @@ if __name__ == '__main__':
                                                   solicited city
                                                  '''
                                     )
-    parser.add_argument('city')
+    parser.add_argument('city', 
+                        help="Ex: sao-paulo; brasilia")
     parser.add_argument('--forecast')
     args = parser.parse_args()
+
+    request_manager = RequestManager(args.city)
+    request_manager.request_data()
+    request_manager.format_data()
+    render_weather = RenderWeather(request_manager.current_weather_data,
+                                   request_manager.forecast_data
+                                  )
+    render_weather.render_current_weather()
     
-    main(args.city, args.forecast)
+    if args.forecast:
+        render_weather.render_forecast()
+    
+
+
+if __name__ == '__main__':
+    main()
