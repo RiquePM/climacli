@@ -5,11 +5,11 @@ import argparse
 
 
 class RequestManager:
-    def __init__(self, city):
+    def __init__(self, city, TOKEN):
         """In the future these constants are going to be imported
            from another python module in order to reduce code verbosity 
         """
-        self.TOKEN = "User token here"
+        self.TOKEN = TOKEN
         self.city = city
         self.FIELDS = '''only_results,temp,date,description,city,humidity,
                          forecast,date,weekday,max,min,description
@@ -25,6 +25,7 @@ class RequestManager:
                                     &key={self.TOKEN}
                                     &city_name={self.city}
                                  '''.split())
+                                 
         self.json_resp = None
         self.current_weather_data = None
         self.forecast_data = None
@@ -99,12 +100,13 @@ def main():
                                                   solicited city
                                                  '''
                                     )
+    parser.add_argument('token')
     parser.add_argument('city', 
                         help="Ex: sao-paulo; brasilia")
     parser.add_argument('--forecast')
     args = parser.parse_args()
 
-    request_manager = RequestManager(args.city)
+    request_manager = RequestManager(args.city, args.token)
     request_manager.request_data()
     request_manager.format_data()
     render_weather = RenderWeather(request_manager.current_weather_data,
