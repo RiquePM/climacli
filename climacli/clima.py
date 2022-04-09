@@ -63,7 +63,7 @@ class RenderWeather:
         self.console = Console()
 
     def render_current_weather(self):
-        #current_weather_data = format_data(json_resp)[0]
+        """To do: customize the table"""
         current_weather_table = Table(
             "Temperature",
             "Date",
@@ -76,7 +76,7 @@ class RenderWeather:
         return self.console.print(current_weather_table)
 
     def render_forecast(self):
-        #current_weather, forecast_data = format_data(json_resp)
+        """To do: customize the table"""
         forecast_table = Table(
             "Date",
             "Weekday",
@@ -103,7 +103,7 @@ def main():
     parser.add_argument('token')
     parser.add_argument('city', 
                         help="Ex: sao-paulo; brasilia")
-    parser.add_argument('--forecast')
+    parser.add_argument('-f','--forecast', choices=['True', 'False'])
     args = parser.parse_args()
 
     request_manager = RequestManager(args.city, args.token)
@@ -114,7 +114,7 @@ def main():
                                   )
     render_weather.render_current_weather()
     
-    if args.forecast:
+    if args.forecast != 'False':
         render_weather.render_forecast()
     
 
