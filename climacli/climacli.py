@@ -103,7 +103,7 @@ def main():
     parser.add_argument('token')
     parser.add_argument('city', 
                         help="Ex: sao-paulo; brasilia")
-    parser.add_argument('-f','--forecast', choices=['True', 'False'])
+    parser.add_argument('-f','--forecast', choices=['True', 'False'], default='False')
     args = parser.parse_args()
 
     request_manager = RequestManager(args.city, args.token)
