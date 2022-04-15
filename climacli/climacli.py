@@ -50,11 +50,7 @@ class RequestManager:
                 self.current_weather_data[k] = str(v)
             else:
                 continue
-        
-        """
-        change the way the forecast data is retrieved from json
-        this will possible eliminate the first loop
-        """
+
         self.forecast_data = {'forecast': self.json_resp['forecast']}
         for val in self.forecast_data['forecast']:
             for k, v in val.items():
@@ -102,53 +98,119 @@ class RenderWeather:
         return self.console.print(forecast_table)
 
 def main():
-    parser = argparse.ArgumentParser(description='''
+    if Path('usr_confg_file_tst.json').is_file():
+        user_conf = usr_config_file_tst.read_usr_file()
+        if user_conf["default_city"] is not None:
+            parser = argparse.ArgumentParser(description='''
                                                   Displays the current weather
                                                   and the next 10 day 
                                                   weather forecast for the
                                                   solicited city
                                                  '''
-                                    )
-    
-    """
-    Add an optional argument to store the user argument inputs into a txt file
-    if the txt file exists than the program should be run without the need
-    to pass parameters to the file
-    """
-    parser.add_argument('token')
-    parser.add_argument('city',
-                        help="Ex: sao-paulo; brasilia")
-    
-    parser.add_argument('--set_city', choices=['True', 'False'], 
-                        default='False', 
-                        help="Store the current city as default"
-                        )
-    
-    parser.add_argument('-f','--forecast', choices=['True', 'False'], 
-                        default='False'
-                        )
-    
-    args = parser.parse_args()
-    
-    if Path('climacli/usr_confg_file_tst.json').is_file():
-        user_conf = usr_config_file_tst.read_usr_file()
-        if user_conf["default_city"] is not None:
-            request_manager = RequestManager(user_conf["TOKEN"], 
-                                             city=user_conf["default_city"])
-        else:
-            request_manager = RequestManager(user_conf["TOKEN"], 
-                                             city=args.city)
-        request_manager.request_data()
-        request_manager.format_data()
-        render_weather = RenderWeather(request_manager.current_weather_data,
-                                       request_manager.forecast_data
-                                       )
-        render_weather.render_current_weather()
+                                                 )
 
-        if args.forecast == 'True':
-            render_weather.render_forecast()
+            parser.add_argument('-f','--forecast', choices=['True', 'False'], 
+                                default='False'
+                                )
+    
+            args = parser.parse_args()
+
+            request_manager = RequestManager(user_conf["TOKEN"], 
+                                             city=user_conf["default_city"]
+                                             )
+            request_manager.request_data()
+            request_manager.format_data()
+            render_weather = RenderWeather(request_manager.current_weather_data,
+                                           request_manager.forecast_data
+                                           )
+            render_weather.render_current_weather()
+
+            if args.forecast == 'True':
+                render_weather.render_forecast()
+
+        else:
+            parser = argparse.ArgumentParser(description='''
+                                                  Displays the current weather
+                                                  and the next 10 day 
+                                                  weather forecast for the
+                                                  solicited city
+                                                 '''
+                                                 )
+    
+            parser.add_argument('city',
+                                help="Ex: sao-paulo; brasilia"
+                                )
+    
+            parser.add_argument('--set_city', choices=['True', 'False'], 
+                                default='False', 
+                                help="Store the current city as default"
+                                )
+    
+            parser.add_argument('-f','--forecast', choices=['True', 'False'], 
+                                default='False'
+                                )
+    
+            args = parser.parse_args()
+            
+            if args.set_city == "True":
+                user_conf = usr_config_file_tst.read_usr_file()
+                usr_config_file_tst.create_usr_file(user_conf["TOKEN"], 
+                                                    default_city=args.city
+                                                    )
+            
+                request_manager = RequestManager(user_conf["TOKEN"], 
+                                                 city=user_conf["default_city"]
+                                                 )
+
+                request_manager.request_data()
+                request_manager.format_data()
+                render_weather = RenderWeather(request_manager.current_weather_data,
+                                               request_manager.forecast_data
+                                               )
+                render_weather.render_current_weather()
+
+                if args.forecast == 'True':
+                    render_weather.render_forecast()
+
+            else:
+                request_manager = RequestManager(user_conf["TOKEN"],
+                                                 city=args.city 
+                                                 )
+                request_manager.request_data()
+                request_manager.format_data()
+                render_weather = RenderWeather(request_manager.current_weather_data,
+                                               request_manager.forecast_data
+                                               )
+                render_weather.render_current_weather()
+
+                if args.forecast == 'True':
+                    render_weather.render_forecast()
 
     else:
+        parser = argparse.ArgumentParser(description='''
+                                                  Displays the current weather
+                                                  and the next 10 day 
+                                                  weather forecast for the
+                                                  solicited city
+                                                 '''
+                                                 )
+    
+        parser.add_argument('token')
+        parser.add_argument('city',
+                            help="Ex: sao-paulo; brasilia"
+                            )
+    
+        parser.add_argument('--set_city', choices=['True', 'False'], 
+                            default='False', 
+                            help="Store the current city as default"
+                            )
+    
+        parser.add_argument('-f','--forecast', choices=['True', 'False'], 
+                            default='False'
+                            )
+    
+        args = parser.parse_args()
+    
         if args.set_city == "True":
             usr_config_file_tst.create_usr_file(args.token, 
                                                 default_city=args.city
@@ -156,13 +218,14 @@ def main():
             
             user_conf = usr_config_file_tst.read_usr_file()
             request_manager = RequestManager(user_conf["TOKEN"], 
-                                             city=user_conf["default_city"])
+                                             city=user_conf["default_city"]
+                                             )
 
             request_manager.request_data()
             request_manager.format_data()
             render_weather = RenderWeather(request_manager.current_weather_data,
                                            request_manager.forecast_data
-                                          )
+                                           )
             render_weather.render_current_weather()
 
             if args.forecast == 'True':
@@ -172,13 +235,14 @@ def main():
             usr_config_file_tst.create_usr_file(args.token)
             user_conf = usr_config_file_tst.read_usr_file()
             request_manager = RequestManager(user_conf["TOKEN"], 
-                                             city=args.city)
+                                             city=args.city
+                                             )
 
             request_manager.request_data()
             request_manager.format_data()
             render_weather = RenderWeather(request_manager.current_weather_data,
                                            request_manager.forecast_data
-                                          )
+                                           )
             render_weather.render_current_weather()
 
             if args.forecast == 'True':
