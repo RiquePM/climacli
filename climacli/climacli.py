@@ -97,6 +97,18 @@ class RenderWeather:
 
         return self.console.print(forecast_table)
 
+def sei_la(request_manager, args):
+    request_manager.request_data()
+    request_manager.format_data()
+    render_weather = RenderWeather(request_manager.current_weather_data,
+                                   request_manager.forecast_data
+                                   )
+    render_weather.render_current_weather()
+
+    if args.forecast == 'True':
+        render_weather.render_forecast()
+
+
 def main():
     if Path('usr_confg_file_tst.json').is_file():
         user_conf = usr_config_file_tst.read_usr_file()
@@ -118,16 +130,9 @@ def main():
             request_manager = RequestManager(user_conf["TOKEN"], 
                                              city=user_conf["default_city"]
                                              )
-            request_manager.request_data()
-            request_manager.format_data()
-            render_weather = RenderWeather(request_manager.current_weather_data,
-                                           request_manager.forecast_data
-                                           )
-            render_weather.render_current_weather()
-
-            if args.forecast == 'True':
-                render_weather.render_forecast()
-
+            
+            sei_la(request_manager, args)
+            
         else:
             parser = argparse.ArgumentParser(description='''
                                                   Displays the current weather
@@ -161,31 +166,16 @@ def main():
                 request_manager = RequestManager(user_conf["TOKEN"], 
                                                  city=user_conf["default_city"]
                                                  )
-
-                request_manager.request_data()
-                request_manager.format_data()
-                render_weather = RenderWeather(request_manager.current_weather_data,
-                                               request_manager.forecast_data
-                                               )
-                render_weather.render_current_weather()
-
-                if args.forecast == 'True':
-                    render_weather.render_forecast()
+                
+                sei_la(request_manager, args)
 
             else:
                 request_manager = RequestManager(user_conf["TOKEN"],
                                                  city=args.city 
                                                  )
-                request_manager.request_data()
-                request_manager.format_data()
-                render_weather = RenderWeather(request_manager.current_weather_data,
-                                               request_manager.forecast_data
-                                               )
-                render_weather.render_current_weather()
-
-                if args.forecast == 'True':
-                    render_weather.render_forecast()
-
+                
+                sei_la(request_manager, args)
+                
     else:
         parser = argparse.ArgumentParser(description='''
                                                   Displays the current weather
@@ -220,34 +210,18 @@ def main():
             request_manager = RequestManager(user_conf["TOKEN"], 
                                              city=user_conf["default_city"]
                                              )
-
-            request_manager.request_data()
-            request_manager.format_data()
-            render_weather = RenderWeather(request_manager.current_weather_data,
-                                           request_manager.forecast_data
-                                           )
-            render_weather.render_current_weather()
-
-            if args.forecast == 'True':
-                render_weather.render_forecast()
-        
+            
+            sei_la(request_manager, args)
+            
         else:
             usr_config_file_tst.create_usr_file(args.token)
             user_conf = usr_config_file_tst.read_usr_file()
             request_manager = RequestManager(user_conf["TOKEN"], 
                                              city=args.city
                                              )
-
-            request_manager.request_data()
-            request_manager.format_data()
-            render_weather = RenderWeather(request_manager.current_weather_data,
-                                           request_manager.forecast_data
-                                           )
-            render_weather.render_current_weather()
-
-            if args.forecast == 'True':
-                render_weather.render_forecast()
-
+            
+            sei_la(request_manager, args)
+            
 
 if __name__ == '__main__':
     main()
